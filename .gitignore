@@ -1,0 +1,7 @@
+*.iso
+*.img
+*.qcow2
+*.vma
+*.vma.zst
+Thumbs.db
+desktop.ini
