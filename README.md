@@ -1,16 +1,16 @@
 # Proxmox VE Homelab – Virtualisierungsprojekt
 
-> Stand: 16.10.2026 · Lernprojekt im Rahmen meiner Umschulung zur Fachinformatikerin für Systemintegration
+> Stand: 16.10.2026 · ✅ alle Phasen abgeschlossen · Lernprojekt im Rahmen meiner Umschulung zur Fachinformatikerin für Systemintegration
 
 ## 🇩🇪 Projektbeschreibung
 
-Ich habe eine Virtualisierungsumgebung mit **Proxmox VE** aufgebaut und dokumentiert: Installation, Container, eigenes Netzwerk mit NAT, Snapshots sowie Backup und Restore.
+Ich habe eine Virtualisierungsumgebung mit **Proxmox VE** aufgebaut und dokumentiert: Installation, Container, eigenes Netzwerk mit NAT, Snapshots, Backup und Restore, Templates und Klone sowie ein automatischer Backup-Job.
 
 Proxmox läuft als Hyper-V-VM auf einem Windows Server 2019 in einer Lab-Umgebung (Nested Virtualization). Alle Probleme und Lösungen sind in [`docs/`](docs/) beschrieben.
 
 ## 🇬🇧 In short
 
-I built and documented a Proxmox VE lab: installation, LXC container, isolated network with NAT, snapshots, backup and restore. Proxmox runs as a nested Hyper-V VM on Windows Server 2019. Problems and fixes are documented in `docs/`.
+I built and documented a Proxmox VE lab: installation, LXC container, isolated network with NAT, snapshots, backup and restore, templates and clones, and a scheduled nightly backup. Proxmox runs as a nested Hyper-V VM on Windows Server 2019. Problems and fixes are documented in `docs/`.
 
 ## 📋 Projektstatus
 
@@ -18,9 +18,9 @@ I built and documented a Proxmox VE lab: installation, LXC container, isolated n
 |-------|-------|--------|
 | 1 | Installation & Web-GUI | ✅ erledigt |
 | 2 | Erster LXC-Container (Debian 13) | ✅ erledigt |
-| 3 | Templates & Klonen | ⏳ geplant |
+| 3 | Template, Linked & Full Clone | ✅ erledigt |
 | 4 | Netzwerk (isoliertes Netz, NAT, `vmbr0`) | ✅ erledigt |
-| 5 | Snapshot, Backup (`vzdump`) & Restore | ✅ erledigt |
+| 5 | Snapshot, Backup (`vzdump`), Restore & nächtlicher Backup-Job | ✅ erledigt |
 
 ## 🏗️ Aufbau
 
@@ -30,7 +30,9 @@ Physischer Lab-Host (Hyper-V)
     ├── vSwitch "Proxmox-Intern" (intern) – 192.168.100.1/24 + NAT
     └── PVE01 – Proxmox VE 9.2 (Hyper-V-VM, Generation 1) – 192.168.100.10
         ├── CT 100 "ct-debian01" – Debian 13 LXC – 192.168.100.20
-        └── CT 101 – Restore-Test aus Backup – 192.168.100.21 (gestoppt)
+        ├── CT 101 – Template (aus Backup wiederhergestellt)
+        ├── CT 102 "ct-clone-linked" – Linked Clone – 192.168.100.22
+        └── CT 103 "ct-clone-full" – Full Clone – 192.168.100.23
 ```
 
 ## 🛠️ Technik
@@ -39,7 +41,8 @@ Physischer Lab-Host (Hyper-V)
 - **Verwaltung:** Proxmox Web-GUI (Port 8006), PowerShell
 - **Netzwerk:** interner Hyper-V-Switch, NAT, Linux Bridge `vmbr0`
 - **Speicher:** `local` (ISO, Templates, Backups), `local-lvm` (LVM-Thin für Container)
-- **Datensicherung:** Snapshots, `vzdump` (ZSTD), Restore auf neue CT-ID
+- **Datensicherung:** Snapshots, `vzdump` (ZSTD), Restore auf neue CT-ID, Backup-Job täglich 02:00 (Keep Last 3)
+- **Bereitstellung:** Template, Linked Clone, Full Clone
 
 ## 🧯 Troubleshooting (Kurzfassung)
 
@@ -58,8 +61,8 @@ Physischer Lab-Host (Hyper-V)
 |-------|--------|
 | [01-installation.md](docs/01-installation.md) | Hyper-V-VM, Installation, Web-GUI |
 | [02-erste-vm.md](docs/02-erste-vm.md) | LXC-Template und erster Container |
-| [03-templates-klonen.md](docs/03-templates-klonen.md) | geplant |
+| [03-templates-klonen.md](docs/03-templates-klonen.md) | Template, Linked und Full Clone |
 | [04-netzwerk.md](docs/04-netzwerk.md) | isoliertes Netz mit NAT, Ping-Test |
-| [05-backup-snapshots.md](docs/05-backup-snapshots.md) | Snapshot, Backup, Restore |
+| [05-backup-snapshots.md](docs/05-backup-snapshots.md) | Snapshot, Backup, Restore, Backup-Job |
 
-Screenshots: [`screenshots/`](screenshots/) (01–08)
+Screenshots: [`screenshots/`](screenshots/) (01–12)
