@@ -1,26 +1,24 @@
 # 02 – Erster LXC-Container
 
-**Status:** ✅ erledigt (14.10.2026) – eine vollständige KVM-VM ist geplant
+**Status:** ✅ erledigt (14.10.2026)
 
-## Ziel
+> 🇬🇧 **In short:** Downloaded a Debian 13 template and created LXC container CT 100 with a static IP. The download stalled but resumed automatically.
 
-Einen ersten Linux-Container (LXC) in Proxmox erstellen und testen.
+## Was und warum
+
+Einen Debian-Container erstellen. Grund: Container sind leicht und brauchen keine Hardware-Virtualisierung – ideal in einer verschachtelten Umgebung.
 
 ## Durchgeführte Schritte
 
-1. Template heruntergeladen: `local (pve01)` → CT Templates → Templates → **debian-13-standard 13.6-1**
-2. Container erstellt („Create CT“):
-   - CT ID `100`, Hostname `ct-debian01`
-   - 8 GB Disk, 1 Core, 512 MB RAM, 512 MB Swap
-   - Netzwerk: Bridge `vmbr0`, statische IP `192.168.100.20/24`, Gateway `192.168.100.1`
-3. Container gestartet und in der Konsole getestet (`ping`, `apt update`).
+1. Template **debian-13-standard 13.6-1** geladen (`local` → CT Templates).
+2. CT 100 `ct-debian01` erstellt: 8 GB Disk, 1 Core, 512 MB RAM, Bridge `vmbr0`, IP `192.168.100.20/24`.
+3. Container gestartet und getestet.
 
-## Probleme & Lösungen
+## Troubleshooting
 
-**Problem: Template-Download blieb mehrmals stehen**
-Die Verbindung wurde während des Downloads zweimal getrennt (`Connection closed ... Retrying`).
-Lösung: Download **nicht** abgebrochen. `wget` hat automatisch an der gleichen Stelle weitergemacht (`206 Partial Content`). Am Ende: `TASK OK`, Prüfsumme korrekt.
-Fortschritt kontrolliert mit: `ls -lh /var/lib/vz/template/cache/`
+| Problem | Ursache | Lösung |
+|---------|---------|--------|
+| Download stockt (`Connection closed ... Retrying`) | Verbindungsabbrüche im Lab | **Nicht** abbrechen. `wget` setzt fort (`206 Partial Content`). Prüfen: `ls -lh /var/lib/vz/template/cache/` |
 
 ## Screenshots
 
@@ -28,6 +26,5 @@ Fortschritt kontrolliert mit: `ls -lh /var/lib/vz/template/cache/`
 
 ## Was ich gelernt habe
 
-- Unterschied **Container (LXC)** und **VM (KVM)**: Ein Container teilt sich den Kernel mit dem Host, startet schneller und braucht weniger Ressourcen.
-- In verschachtelten Umgebungen sind Container besonders praktisch, weil sie keine Hardware-Virtualisierung brauchen.
-- Ein abgebrochener Download ist nicht immer verloren – HTTP kann Teildownloads fortsetzen.
+- **Container** teilt den Kernel mit dem Host, **VM** hat einen eigenen Kernel.
+- Ein abgebrochener HTTP-Download kann an der gleichen Stelle weitergehen.

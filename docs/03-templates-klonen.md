@@ -2,12 +2,4 @@
 
 **Status:** ⏳ geplant
 
-## Ziel
-
-## Durchgeführte Schritte
-
-## Probleme & Lösungen
-
-## Screenshots
-
-## Was ich gelernt habe
+> 🇬🇧 **In short:** Planned – convert a container into a template and create linked/full clones.

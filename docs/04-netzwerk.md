@@ -1,14 +1,14 @@
 # 04 – Netzwerk
 
-**Status:** 🔄 in Arbeit – isoliertes Netz mit NAT ✅
+**Status:** ✅ erledigt (14.10.2026)
 
-## Ziel
+> 🇬🇧 **In short:** Created an internal Hyper-V switch with NAT so Proxmox has internet access without touching the lab network. Ping to the Windows gateway fails because of the firewall – not a network error.
 
-Proxmox ein eigenes Netzwerk geben, das die Lab-Umgebung nicht stört, aber trotzdem Internetzugang hat.
+## Was und warum
+
+Ein eigenes Netz für Proxmox. Grund: Im Lab-Netz vergibt ein DHCP-Server die Adressen. Feste IPs könnten kollidieren. Das interne Netz ist getrennt und hat trotzdem Internet.
 
 ## Durchgeführte Schritte
-
-Auf dem Windows Server 2019 (PowerShell als Administrator):
 
 ```powershell
 New-VMSwitch -Name "Proxmox-Intern" -SwitchType Internal
@@ -16,21 +16,26 @@ New-NetIPAddress -IPAddress 192.168.100.1 -PrefixLength 24 -InterfaceAlias "vEth
 New-NetNat -Name "Proxmox-NAT" -InternalIPInterfaceAddressPrefix 192.168.100.0/24
 ```
 
-| Gerät | IP-Adresse |
-|-------|-----------|
+| Gerät | IP |
+|-------|----|
 | Windows Server (Gateway, NAT) | 192.168.100.1 |
 | Proxmox PVE01 | 192.168.100.10 |
-| Container ct-debian01 | 192.168.100.20 |
+| CT 100 ct-debian01 | 192.168.100.20 |
+| CT 101 (Restore-Test) | 192.168.100.21 |
 
-Warum ein eigenes Netz? Im Lab-Netz vergibt ein DHCP-Server die Adressen. Eine feste IP für Proxmox könnte dort mit anderen Geräten kollidieren. Das interne Netz mit NAT ist davon komplett getrennt.
+## Tests und Ergebnis
 
-## Probleme & Lösungen
+| Test | Ergebnis | Bedeutung |
+|------|----------|-----------|
+| `ping 192.168.100.10` | 0 % Verlust | Container erreicht Proxmox |
+| `ping 192.168.100.1` | 100 % Verlust | Windows-Firewall blockiert ICMP |
+| `apt update` | Pakete geladen | Gateway, NAT und DNS funktionieren |
 
-**Problem: Ping zum Gateway schlägt fehl**
-`ping -c 3 192.168.100.1` → 100 % packet loss
-Aber: `apt update` im Container funktioniert – der Internetzugang über das Gateway läuft also.
-Ursache: Die **Windows-Firewall** blockiert eingehende ICMP-Echo-Anfragen (Ping) standardmäßig.
-Test zur Bestätigung: `ping -c 3 192.168.100.10` (Proxmox, Linux) → 0 % packet loss.
+## Troubleshooting
+
+| Problem | Ursache | Lösung |
+|---------|---------|--------|
+| Ping zum Gateway schlägt fehl | Windows-Firewall blockiert eingehendes ICMP Echo | Kein Fehler. Mit `apt update` und Ping zu Proxmox gegengeprüft |
 
 ## Screenshots
 
@@ -38,6 +43,6 @@ Test zur Bestätigung: `ping -c 3 192.168.100.10` (Proxmox, Linux) → 0 % packe
 
 ## Was ich gelernt habe
 
-- Interner Hyper-V-Switch + NAT = isoliertes Netz mit Internetzugang.
-- Ein fehlgeschlagener Ping bedeutet nicht automatisch, dass keine Verbindung besteht – die Firewall kann ICMP blockieren.
-- Mehrere Tests kombinieren (Ping, DNS, Download), um ein Netzwerkproblem einzugrenzen.
+- Interner Switch + NAT = isoliertes Netz mit Internetzugang.
+- Ein fehlgeschlagener Ping heißt nicht automatisch „keine Verbindung“.
+- Netzwerkprobleme mit mehreren Tests eingrenzen.
